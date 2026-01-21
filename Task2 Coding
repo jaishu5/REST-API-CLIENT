@@ -1,0 +1,58 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import org.json.JSONObject;
+
+public class WeatherApiClient {
+
+    public static void main(String[] args) {
+
+        try {
+            // API URL (Open-Meteo)
+            String apiUrl =
+                "https://api.open-meteo.com/v1/forecast?latitude=11.01&longitude=76.96&current_weather=true";
+
+            // Create URL object
+            URL url = new URL(apiUrl);
+
+            // Open HTTP connection
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            // Read response
+            BufferedReader reader =
+                new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            String line;
+            StringBuilder response = new StringBuilder();
+
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+
+            reader.close();
+
+            // Parse JSON response
+            JSONObject jsonResponse = new JSONObject(response.toString());
+            JSONObject currentWeather = jsonResponse.getJSONObject("current_weather");
+
+            // Extract data
+            double temperature = currentWeather.getDouble("temperature");
+            double windSpeed = currentWeather.getDouble("windspeed");
+            int weatherCode = currentWeather.getInt("weathercode");
+
+            // Display structured output
+            System.out.println("🌤 WEATHER REPORT");
+            System.out.println("---------------------------");
+            System.out.println("Temperature : " + temperature + " °C");
+            System.out.println("Wind Speed  : " + windSpeed + " km/h");
+            System.out.println("Weather Code: " + weatherCode);
+
+        } catch (Exception e) {
+            System.out.println("Error occurred while fetching weather data");
+            e.printStackTrace();
+        }
+    }
+}
